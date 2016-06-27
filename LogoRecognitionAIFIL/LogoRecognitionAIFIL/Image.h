@@ -11,8 +11,10 @@ private:
 public:
 	Image(char *path_, char *nameWindowForShow_);
 	~Image();
-	void ShowImage();
-	void CreateWindowForShow(char *nameWindow_);
+	void      ShowImage();
+	void      CreateWindowForShow(char *nameWindow_);
+	Mat*      GetMat();
+	IplImage* GetIplImage();
 };
 
 
