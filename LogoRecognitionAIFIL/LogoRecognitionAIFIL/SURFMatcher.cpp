@@ -19,3 +19,10 @@ void SURFMatcher::DetectKeyPoints()
 	m_detector->detect(m_imagePattern, m_keypointsImagePattern);
 	m_detector->detect(m_imageScene, m_keypointsImageScene);
 }
+
+
+void SURFMatcher::ComputeDescriptors()
+{	
+	m_extractor->compute(m_imagePattern, m_keypointsImagePattern, m_descriptorsImagePattern);
+	m_extractor->compute(m_imageScene,   m_keypointsImageScene,   m_descriptorsImageScene);
+}
