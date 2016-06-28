@@ -152,10 +152,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="IMatcher.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="IMatcher.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
