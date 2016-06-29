@@ -8,6 +8,7 @@ class SURFMatcher :	public IMatcher {
 protected:
 	void ComputeDescriptors();
 	void DetectKeyPoints();
+	void Localization();
 public:
 	SURFMatcher(Mat imagePattern_, Mat imageScene_);
 	~SURFMatcher();
