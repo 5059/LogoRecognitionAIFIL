@@ -27,37 +27,62 @@ void SURFMatcher::ComputeDescriptors()
 	m_extractor->compute(m_imageScene,   m_keypointsImageScene,   m_descriptorsImageScene);
 }
 
-
-void SURFMatcher::Match()
+void SURFMatcher::Localization()
 {
-	DetectKeyPoints();
-	ComputeDescriptors();
+	// Р›РѕРєР°Р»РёР·Р°С†РёСЏ РѕР±СЉРµРєС‚РѕРІ
+	vector<Point2f> imagePattern;
+	vector<Point2f> imageScene;
 
-	// Локализация объектов
-	vector<Point2f> obj;
-	vector<Point2f> scene;
-
-	for (int i = 0; i < goodMatches.size(); i++)
+	for (int i = 0; i < m_correctMatches.size(); i++)
 	{
-		obj.push_back(keypointsForTemplateImage[goodMatches[i].queryIdx].pt);
-		scene.push_back(keypointsForImage[goodMatches[i].trainIdx].pt);
+		imagePattern.push_back(m_keypointsImagePattern[m_correctMatches[i].queryIdx].pt);
+		imageScene.push_back(m_keypointsImageimageScene[m_correctMatches[i].trainIdx].pt);
 	}
 
-	Mat H = findHomography(obj, scene, CV_RANSAC);
+	Mat H = findHomography(imagePattern, imageScene, CV_RANSAC);
+	
+	//-- РџРѕР»СѓС‡РёС‚СЊ "СѓРіР»С‹" РёР·РѕР±СЂР°Р¶РµРЅРёСЏ СЃ С†РµР»РµРІС‹Рј РѕР±СЉРµРєС‚РѕРј
+	std::vector<Point2f> imagePatternCorners(4);
+	imagePatternCorners[0] = cvPoint(0,                  0);
+	imagePatternCorners[1] = cvPoint(imageTemplate.cols, 0);
+	imagePatternCorners[2] = cvPoint(imageTemplate.cols, imageTemplate.rows);
+	imagePatternCorners[3] = cvPoint(0,                  imageTemplate.rows);
 
-	//-- Получить "углы" изображения с целевым объектом
-	std::vector<Point2f> templateImageCorners(4);
-	templateImageCorners[0] = cvPoint(0, 0); templateImageCorners[1] = cvPoint(imageTemplate.cols, 0);
-	templateImageCorners[2] = cvPoint(imageTemplate.cols, imageTemplate.rows); templateImageCorners[3] = cvPoint(0, imageTemplate.rows);
 	std::vector<Point2f> imageCorners(4);
-
-	//-- Отобразить углы целевого объекта, используя найденное преобразование, на сцену
-	perspectiveTransform(templateImageCorners, imageCorners, H);
-
-	//-- Соеденить отображенные углы
+	//-- РћС‚РѕР±СЂР°Р·РёС‚СЊ СѓРіР»С‹ С†РµР»РµРІРѕРіРѕ РѕР±СЉРµРєС‚Р°, РёСЃРїРѕР»СЊР·СѓСЏ РЅР°Р№РґРµРЅРЅРѕРµ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ, РЅР° СЃС†РµРЅСѓ
+	perspectiveTransform(imagePatternCorners, imageCorners, H);
+	
+	//-- РЎРѕРµРґРµРЅРёС‚СЊ РѕС‚РѕР±СЂР°Р¶РµРЅРЅС‹Рµ СѓРіР»С‹
 	line(imgageMatches, imageCorners[0] + Point2f(imageTemplate.cols, 0), imageCorners[1] + Point2f(imageTemplate.cols, 0), Scalar(0, 255, 0), 4);
 	line(imgageMatches, imageCorners[1] + Point2f(imageTemplate.cols, 0), imageCorners[2] + Point2f(imageTemplate.cols, 0), Scalar(0, 255, 0), 4);
 	line(imgageMatches, imageCorners[2] + Point2f(imageTemplate.cols, 0), imageCorners[3] + Point2f(imageTemplate.cols, 0), Scalar(0, 255, 0), 4);
 	line(imgageMatches, imageCorners[3] + Point2f(imageTemplate.cols, 0), imageCorners[0] + Point2f(imageTemplate.cols, 0), Scalar(0, 255, 0), 4);
+}
 
+void SURFMatcher::Match()
+{		
+	std::vector<DMatch> matches;
+	m_matcher->match(m_descriptorsImagePattern, m_descriptorsImageScene, matches);
+
+	double maxDistanse = 0; double minDistanse = 150;
+
+	// Р’С‹С‡РёСЃР»РµРЅРёРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ Рё РјРёРЅРёРјР°Р»СЊРЅРѕРіРѕ СЂР°СЃСЃС‚РѕСЏРЅРёСЏ СЃСЂРµРґРё РІСЃРµС… РґРµСЃРєСЂРёРїС‚РѕСЂРѕРІ
+	// РІ РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРµ РїСЂРёР·РЅР°РєРѕРІ
+	for (int i = 0; i < m_descriptorsImageScene.rows; i++)
+	{
+		double dist = matches[i].distance;
+		if (dist < minDistanse) 
+			minDistanse = dist;
+		if (dist > maxDistanse) 
+			maxDistanse = dist;
+	}
+
+	double coefficient = 3.5;
+	for (int i = 0; i < m_descriptorsImagePattern.rows; i++)
+	{
+		if (matches[i].distance < coefficient * minDistanse)
+		{
+			m_correctMatches.push_back(matches[i]);
+		}
+	}
 }
