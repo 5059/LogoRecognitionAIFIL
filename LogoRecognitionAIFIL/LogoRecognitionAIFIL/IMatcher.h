@@ -20,6 +20,7 @@ protected:
 
 	virtual void ComputeDescriptors() = 0;
 	virtual void DetectKeyPoints()    = 0;
+	virtual void Localization() = 0;
 public:
 	IMatcher(Mat imagePattern_, Mat imageScene_) :
 		m_imagePattern(imagePattern_),

@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "Image.h"
+#include "IMatcher.h"
+#include "SURFMatcher.h"
 
 // Инвариантен к масштабу и вращению.
 void SURFDetector(Image *imageTemplate_, Image *image_)
@@ -58,14 +60,15 @@ void SURFDetector(Image *imageTemplate_, Image *image_)
 			goodMatches.push_back(matches[i]);
 		}
 	}
-
+	
 	Mat imgageMatches;
-
+	
 	// Нарисовать хорошие матчи
 	drawMatches(imageTemplate, keypointsForTemplateImage, image, keypointsForImage,
 		goodMatches, imgageMatches, Scalar::all(-1), Scalar::all(-1),
 		vector<char>(), DrawMatchesFlags::NOT_DRAW_SINGLE_POINTS);
 
+	
 	// Локализация объектов
 	vector<Point2f> obj;
 	vector<Point2f> scene;
@@ -77,7 +80,7 @@ void SURFDetector(Image *imageTemplate_, Image *image_)
 	}
 
 	Mat H = findHomography(obj, scene, CV_RANSAC);
-
+	
 	//-- Получить "углы" изображения с целевым объектом
 	std::vector<Point2f> templateImageCorners(4);
 	templateImageCorners[0] = cvPoint(0, 0); templateImageCorners[1] = cvPoint(imageTemplate.cols, 0);
@@ -86,7 +89,7 @@ void SURFDetector(Image *imageTemplate_, Image *image_)
 
 	//-- Отобразить углы целевого объекта, используя найденное преобразование, на сцену
 	perspectiveTransform(templateImageCorners, imageCorners, H);
-
+	
 	//-- Соеденить отображенные углы
 	line(imgageMatches, imageCorners[0] + Point2f(imageTemplate.cols, 0), imageCorners[1] + Point2f(imageTemplate.cols, 0), Scalar(0, 255, 0), 4);
 	line(imgageMatches, imageCorners[1] + Point2f(imageTemplate.cols, 0), imageCorners[2] + Point2f(imageTemplate.cols, 0), Scalar(0, 255, 0), 4);
@@ -100,14 +103,18 @@ void SURFDetector(Image *imageTemplate_, Image *image_)
 
 int main()
 {
-	Image *template_image = new Image("E:\\JOB\\DataSet_pic\\reference\\8828310-R3L8T8D-650-ogo_4.jpg", "testing");
+	// TODO: Убрать пути.
+	Image *template_image = new Image("..\\..\\..\\DataSet_pic\\reference\\chupa.jpg", "testing");
 	template_image->ShowImage();
 
-	Image *image = new Image("E:\\JOB\\DataSet_pic\\5.jpg", "testing2");
+	Image *image = new Image("..\\..\\..\\DataSet_pic\\1305023417875.jpg", "testing2");
+	//Image *image = new Image("E:\\JOB\\DataSet_pic\\MiniChupaChups-1-Sindy.jpg", "testing2");
 	image->ShowImage();
 
-	SURFDetector(template_image, image);
+	//SURFDetector(template_image, image);	
 
+	IMatcher *matcher = new SURFMatcher(*template_image->GetMat(), *image->GetMat());
+	matcher->Match();
 	// ждём нажатия клавишиd
 	cvWaitKey(0);
 
