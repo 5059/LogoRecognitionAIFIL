@@ -13,7 +13,7 @@ public:
 	SIFTMatcher(Mat imagePattern_, Mat imageScene_);
 	~SIFTMatcher();
 
-	void Match();
+	std::vector<ROI> Match();
 };
 
 #endif

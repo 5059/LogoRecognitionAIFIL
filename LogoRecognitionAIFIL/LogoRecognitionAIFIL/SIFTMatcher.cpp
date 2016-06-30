@@ -54,16 +54,16 @@ void SIFTMatcher::Localization()
 	//-- ќтобразить углы целевого объекта, использу€ найденное преобразование, на сцену
 	perspectiveTransform(imagePatternCorners, imageCorners, H);
 
+	ROI resultROI;	
+	resultROI.lines[0] = { imageCorners[0], imageCorners[1], Scalar(0, 255, 0), 4 };
+	resultROI.lines[1] = { imageCorners[1], imageCorners[2], Scalar(0, 255, 0), 4 };
+	resultROI.lines[2] = { imageCorners[2], imageCorners[3], Scalar(0, 255, 0), 4 };
+	resultROI.lines[3] = { imageCorners[3], imageCorners[0], Scalar(0, 255, 0), 4 };
 
-	line(m_imageScene, imageCorners[0], imageCorners[1], Scalar(0, 255, 0), 4);
-	line(m_imageScene, imageCorners[1], imageCorners[2], Scalar(0, 255, 0), 4);
-	line(m_imageScene, imageCorners[2], imageCorners[3], Scalar(0, 255, 0), 4);
-	line(m_imageScene, imageCorners[3], imageCorners[0], Scalar(0, 255, 0), 4);
-
-	imshow("Result", m_imageScene);
+	m_resultROI.push_back(resultROI);		
 }
 
-void SIFTMatcher::Match()
+std::vector<ROI> SIFTMatcher::Match()
 {
 	DetectKeyPoints();
 	ComputeDescriptors();
@@ -98,4 +98,5 @@ void SIFTMatcher::Match()
 
 	Localization();
 
+	return m_resultROI;
 }

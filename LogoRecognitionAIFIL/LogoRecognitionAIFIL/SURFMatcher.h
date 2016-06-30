@@ -13,7 +13,7 @@ public:
 	SURFMatcher(Mat imagePattern_, Mat imageScene_);
 	~SURFMatcher();
 
-	void Match();
+	std::vector<ROI> Match();
 };
 
 #endif
