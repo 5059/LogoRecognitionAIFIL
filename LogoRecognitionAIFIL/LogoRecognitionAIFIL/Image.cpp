@@ -7,7 +7,7 @@ Image::Image(char *path_, char *nameWindowForShow_) :
 	m_iplImage = cvLoadImage(path_);
 	m_mat      = new Mat(m_iplImage);
 	// Имя будет в дальнейшем использовано для записи изображения в файл.
-	string fileName = SplitFilename("DataSet_pic\\reference\\chupa.jpg");
+	string fileName = SplitFilename(path_);
 	m_nameImage = new char[fileName.length() + 1];
 	// Приводим к char* - так удобнее.
 	strcpy(m_nameImage, fileName.c_str());

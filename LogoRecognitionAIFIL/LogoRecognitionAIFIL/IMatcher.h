@@ -29,9 +29,9 @@ protected:
 	std::vector<DMatch>   m_correctMatches;
 	std::vector<ROI>      m_resultROI;
 
-	virtual void ComputeDescriptors() = 0;
-	virtual void DetectKeyPoints()    = 0;
-	virtual void Localization() = 0;
+	virtual void ComputeDescriptors();
+	virtual void DetectKeyPoints();
+	virtual void Localization();
 public:
 	IMatcher(Mat imagePattern_, Mat imageScene_) :
 		m_imagePattern(imagePattern_),

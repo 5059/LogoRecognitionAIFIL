@@ -8,6 +8,24 @@
 
 const int MAX_PATH_LENGTH = 250;
 
+char* Wchar_tToChar(wchar_t *str_)
+{
+	wchar_t *wchar_tStr = str_;
+	char *charStr = new char[MAX_PATH_LENGTH];
+	std::wcstombs(charStr, wchar_tStr, MAX_PATH_LENGTH);
+
+	return charStr;
+}
+
+char* ConcatenationPathAndFileName(std::string path_, char *fileName_)
+{
+	char *fullPath = new char[path_.length() + strlen(fileName_)];
+	strcpy(fullPath, path_.c_str());
+	strcat(fullPath, fileName_);
+
+	return fullPath;
+}
+
 int main()
 {	
 	WIN32_FIND_DATAW findDataImageScene;
@@ -16,8 +34,8 @@ int main()
 	std::string folderImagePattern = "DataSet_pic\\reference\\";	
 	std::string folderImageScene   = "DataSet_pic\\";	
 	
-	HANDLE const findImagePattern = FindFirstFileW(L".\\DataSet_pic\\reference\\*", &findDataImagePatern);
-	HANDLE const findImageScene   = FindFirstFileW(L".\\DataSet_pic\\*",   &findDataImageScene);
+	HANDLE const findImagePattern = FindFirstFileW(L".\\DataSet_pic\\reference\\*.jpg", &findDataImagePatern);
+	HANDLE const findImageScene   = FindFirstFileW(L".\\DataSet_pic\\*.jpg",   &findDataImageScene);
 
 	setlocale(LC_ALL, "");
 
@@ -27,18 +45,13 @@ int main()
 	{
 		// Перебираем образцы, сравнвая каждый образец с картинкой в куче.
 		do
-		{									
-			wchar_t *fileNameImagePattern = &findDataImagePatern.cFileName[0];				
-			char pathImagePattern[MAX_PATH_LENGTH];
-			std::wcstombs(pathImagePattern, fileNameImagePattern, MAX_PATH_LENGTH);			
+		{	
+			char *pathImagePattern = Wchar_tToChar(&findDataImagePatern.cFileName[0]);						
 			if (strcmp(pathImagePattern, ".") == 0 || strcmp(pathImagePattern, "..") == 0)			
 				continue;			
 
-			char *tempPathImagePattern = new char[folderImagePattern.length() + strlen(pathImagePattern)];
-			strcpy(tempPathImagePattern, folderImagePattern.c_str());
-			strcat(tempPathImagePattern, pathImagePattern);
-
-			Image *imagePattern = new Image(tempPathImagePattern, "image");//("DataSet_pic\\reference\\1.jpg", ";ll");//
+			char *tempPathImagePattern = ConcatenationPathAndFileName(folderImagePattern, pathImagePattern);
+			Image *imagePattern = new Image(tempPathImagePattern, "image");
 
 			WIN32_FIND_DATAW tempFindDataImageScene = findDataImageScene;
 
@@ -46,15 +59,11 @@ int main()
 			{
 				do
 				{
-					wchar_t *fileNameImageScene = &findDataImageScene.cFileName[0];
-					char pathImageScene[MAX_PATH_LENGTH];
-					std::wcstombs(pathImageScene, fileNameImageScene, MAX_PATH_LENGTH);
+					char *pathImageScene = Wchar_tToChar(&tempFindDataImageScene.cFileName[0]);
 					if (strcmp(pathImageScene, ".") == 0 || strcmp(pathImageScene, "..") == 0)
 						continue;
 
-					char *tempPathImageScene = new char[folderImageScene.length() + strlen(pathImageScene)];
-					strcpy(tempPathImageScene, folderImageScene.c_str());
-					strcat(tempPathImageScene, pathImageScene);
+					char *tempPathImageScene = ConcatenationPathAndFileName(folderImageScene, pathImageScene);
 
 					Image *imageScene = new Image(tempPathImageScene, "image");
 
@@ -62,21 +71,21 @@ int main()
 					imageScene->DrawROI(matcher->Match().front());
 					matcher = new SIFTMatcher(*imagePattern->GetMat(), *imageScene->GetMat());
 					imageScene->DrawROI(matcher->Match().front());
-					imageScene->SaveImage("result\\");
-					delete matcher;
+					imageScene->SaveImage("result\\");					
 
-				} while (NULL != FindNextFileW(findImageScene, &findDataImageScene));
+				} while (NULL != FindNextFileW(findImageScene, &tempFindDataImageScene));
 			}			
 		} while (NULL != FindNextFileW(findImagePattern, &findDataImagePatern));
 
 		FindClose(findImagePattern);
 		FindClose(findImageScene);
 	}
-
+	
 	// ждём нажатия клавиши
 	//cvWaitKey(0);
 
 	cvDestroyAllWindows();
+
 	return 0;
 }
 
