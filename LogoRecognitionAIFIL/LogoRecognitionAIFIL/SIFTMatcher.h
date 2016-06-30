@@ -4,16 +4,10 @@
 #include "stdafx.h"
 #include "IMatcher.h"
 
-class SIFTMatcher :	public IMatcher {
-protected:
-	void ComputeDescriptors();
-	void DetectKeyPoints();
-	void Localization();
+class SIFTMatcher :	public IMatcher {	
 public:
 	SIFTMatcher(Mat imagePattern_, Mat imageScene_);
-	~SIFTMatcher();
-
-	void Match();
+	~SIFTMatcher();	
 };
 
 #endif

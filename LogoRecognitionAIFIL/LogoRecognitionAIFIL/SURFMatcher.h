@@ -4,16 +4,10 @@
 #include "stdafx.h"
 #include "IMatcher.h"
 
-class SURFMatcher :	public IMatcher {
-protected:
-	void ComputeDescriptors();
-	void DetectKeyPoints();
-	void Localization();
+class SURFMatcher :	public IMatcher {	
 public:
 	SURFMatcher(Mat imagePattern_, Mat imageScene_);
 	~SURFMatcher();
-
-	void Match();
 };
 
 #endif
