@@ -1,7 +1,6 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
-#include "stdafx.h"
 #include "IMatcher.h"
 
 static std::string SplitFilename(const std::string& str)
@@ -11,21 +10,18 @@ static std::string SplitFilename(const std::string& str)
 }
 
 class Image {
+public:
+	Image(char *path_);
+	~Image();	
+	void      SaveImage(char *path_);
+	void      DrawROI(ROI roi_);
+	Mat*      GetMat();
+	IplImage* GetIplImage();
 private:
 	IplImage *m_iplImage;
 	Mat      *m_mat;
 	char     *m_nameWindowForShow;
-	char     *m_nameImage;	
-public:
-	Image(char *path_, char *nameWindowForShow_);
-	~Image();
-	void      ShowImage();
-	void      SaveImage(char *path_);
-	void      DrawROI(ROI roi_);
-	void      CreateWindowForShow(char *nameWindow_);
-	Mat*      GetMat();
-	IplImage* GetIplImage();
+	char     *m_nameImage;
 };
-
 
 #endif

@@ -4,14 +4,14 @@ SIFTMatcher::SIFTMatcher(Mat imagePattern_, Mat imageScene_) :
 	IMatcher(imagePattern_, imageScene_)
 
 {
-	m_matchingThresholdValue = 800;
-	m_keypointsImagePattern = new std::vector<KeyPoint>();
-	m_keypointsImageScene = new std::vector<KeyPoint>();
-	m_correctMatches = new std::vector<DMatch>();
+	m_matchingThresholdValue = 1900;
+	m_keypointsImagePattern  = new std::vector<KeyPoint>();
+	m_keypointsImageScene    = new std::vector<KeyPoint>();
+	m_correctMatches         = new std::vector<DMatch>();
 	m_detector               = new SiftFeatureDetector(m_matchingThresholdValue);
 	m_extractor              = new SiftDescriptorExtractor();
 	m_matcher                = new FlannBasedMatcher();
-	m_resultROI = new std::vector<ROI>(0);
+	m_resultROI              = new std::vector<ROI>(0);
 }
 
 

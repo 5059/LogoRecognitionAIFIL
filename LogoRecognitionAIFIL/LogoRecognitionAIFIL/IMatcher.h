@@ -19,15 +19,19 @@ struct ROI {
 const int EPSILON = 5;
 
 class IMatcher {
+public:
+	IMatcher(Mat imagePattern_, Mat imageScene_);
+	virtual ~IMatcher();
+	virtual std::vector<ROI>* Match();
 protected:
 	int                    m_matchingThresholdValue;
-	Feature2D             *m_detector;
-	DescriptorExtractor   *m_extractor;
-	DescriptorMatcher     *m_matcher;
 	Mat                    m_imagePattern;
 	Mat                    m_imageScene;
 	Mat                    m_descriptorsImagePattern;
 	Mat                    m_descriptorsImageScene;
+	Feature2D             *m_detector;
+	DescriptorExtractor   *m_extractor;
+	DescriptorMatcher     *m_matcher;
 	std::vector<KeyPoint> *m_keypointsImagePattern;
 	std::vector<KeyPoint> *m_keypointsImageScene;
 	std::vector<DMatch>   *m_correctMatches;
@@ -36,11 +40,6 @@ protected:
 	virtual void ComputeDescriptors();
 	virtual void DetectKeyPoints();
 	virtual void Localization();
-public:
-	IMatcher(Mat imagePattern_, Mat imageScene_);
-	virtual ~IMatcher(){};
-
-	virtual std::vector<ROI>* Match();
 };
 
 #endif

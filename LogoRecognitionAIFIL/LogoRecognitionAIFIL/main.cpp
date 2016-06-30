@@ -36,8 +36,8 @@ int main()
 	std::string folderImagePattern = "DataSet_pic\\reference\\";	
 	std::string folderImageScene   = "DataSet_pic\\";	
 	
-	HANDLE findImagePattern = FindFirstFileW(L".\\DataSet_pic\\reference\\*.jpg", &findDataImagePatern);	
-	HANDLE findImageScene   = FindFirstFileW(L".\\DataSet_pic\\*.jpg", &findDataImageScene);;
+	HANDLE findImagePattern        = FindFirstFileW(L".\\DataSet_pic\\reference\\*.jpg", &findDataImagePatern);	
+	HANDLE findImageScene          = FindFirstFileW(L".\\DataSet_pic\\*.jpg", &findDataImageScene);;
 
 	setlocale(LC_ALL, "");	
 	
@@ -52,7 +52,7 @@ int main()
 
 			char *tempPathImagePattern = ConcatenationPathAndFileName(folderImagePattern, pathImagePattern);
 			std::cout << "     TEMPLATE: " << pathImagePattern << std::endl;
-			Image *imagePattern = new Image(tempPathImagePattern, "image");
+			Image *imagePattern = new Image(tempPathImagePattern);
 
 			WIN32_FIND_DATAW tempFindDataImageScene = findDataImageScene;			
 			findImageScene = FindFirstFileW(L".\\DataSet_pic\\*.jpg", &findDataImageScene);
@@ -67,7 +67,7 @@ int main()
 
 					char *tempPathImageScene = ConcatenationPathAndFileName(folderImageScene, pathImageScene);
 					std::cout << "SCENE: " << pathImageScene << std::endl;
-					Image *imageScene = new Image(tempPathImageScene, "image");
+					Image *imageScene = new Image(tempPathImageScene);
 
 					matcher = new SURFMatcher(*imagePattern->GetMat(), *imageScene->GetMat());
 					std::vector<ROI> *roiSURFMethod = nullptr;					

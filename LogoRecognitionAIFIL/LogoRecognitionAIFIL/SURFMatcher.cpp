@@ -4,7 +4,7 @@ SURFMatcher::SURFMatcher(Mat imagePattern_, Mat imageScene_) :
 	IMatcher(imagePattern_, imageScene_)
 	
 {
-	m_matchingThresholdValue = 800;
+	m_matchingThresholdValue = 1900;
 	m_keypointsImagePattern  = new std::vector<KeyPoint>();
 	m_keypointsImageScene    = new std::vector<KeyPoint>();
 	m_correctMatches         = new std::vector<DMatch>();
