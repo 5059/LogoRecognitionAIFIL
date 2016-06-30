@@ -2,7 +2,6 @@
 #define I_MATCHER
 
 #include "stdafx.h"
-#include "Image.h"
 
 struct Line {
 	Point2f x;

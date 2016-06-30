@@ -6,35 +6,39 @@
 #include<windows.h>
 #include <filesystem>
 
+const int MAX_PATH_LENGTH = 250;
+
 int main()
-{
-	// TODO: Убрать пути.
-	Image *template_image = new Image("DataSet_pic\\reference\\chupa.jpg", "testing");
-	template_image->ShowImage();
-	std::cout << "!!!!!!" << std::endl;
-
-	/*
+{	
+	WIN32_FIND_DATAW findDataImageScene;
+	WIN32_FIND_DATAW findDataImagePatern;
 	
-	WIN32_FIND_DATAW findDataImageScene, findDataImagePatern;
-
-	HANDLE const findImagePattern = FindFirstFileW(L".\\DataSet_pic\\*", &findDataImagePatern);
-	HANDLE const findImageScene = FindFirstFileW(L".\\DataSet_pic\\*", &findDataImageScene);
+	std::string folderImagePattern = "DataSet_pic\\reference\\";	
+	std::string folderImageScene   = "DataSet_pic\\";	
 	
+	HANDLE const findImagePattern = FindFirstFileW(L".\\DataSet_pic\\reference\\*", &findDataImagePatern);
+	HANDLE const findImageScene   = FindFirstFileW(L".\\DataSet_pic\\*",   &findDataImageScene);
+
 	setlocale(LC_ALL, "");
 
-	//IMatcher *matcher = new SIFTMatcher(*template_image->GetMat(), *image->GetMat());
-
+	IMatcher *matcher;
+	
 	if (INVALID_HANDLE_VALUE != findImagePattern)
 	{
+		// Перебираем образцы, сравнвая каждый образец с картинкой в куче.
 		do
-		{						
-			wchar_t *wstr = &findDataImagePatern.cFileName[0];						
-			char* ascii = new char[wcslen(wstr) + 1];			
-			wcstombs(ascii, wstr, wcslen(wstr));			
-			if ((*ascii) == '.')
-				continue;
+		{									
+			wchar_t *fileNameImagePattern = &findDataImagePatern.cFileName[0];				
+			char pathImagePattern[MAX_PATH_LENGTH];
+			std::wcstombs(pathImagePattern, fileNameImagePattern, MAX_PATH_LENGTH);			
+			if (strcmp(pathImagePattern, ".") == 0 || strcmp(pathImagePattern, "..") == 0)			
+				continue;			
 
-			Image *imagePattern = new Image(ascii, "image");
+			char *tempPathImagePattern = new char[folderImagePattern.length() + strlen(pathImagePattern)];
+			strcpy(tempPathImagePattern, folderImagePattern.c_str());
+			strcat(tempPathImagePattern, pathImagePattern);
+
+			Image *imagePattern = new Image(tempPathImagePattern, "image");//("DataSet_pic\\reference\\1.jpg", ";ll");//
 
 			WIN32_FIND_DATAW tempFindDataImageScene = findDataImageScene;
 
@@ -42,16 +46,23 @@ int main()
 			{
 				do
 				{
-					wchar_t *wstr = &findDataImageScene.cFileName[0];					
-					char* ascii = new char[wcslen(wstr) + 1];
-					wcstombs(ascii, wstr, wcslen(wstr));
-					if ((*ascii) == '.')
+					wchar_t *fileNameImageScene = &findDataImageScene.cFileName[0];
+					char pathImageScene[MAX_PATH_LENGTH];
+					std::wcstombs(pathImageScene, fileNameImageScene, MAX_PATH_LENGTH);
+					if (strcmp(pathImageScene, ".") == 0 || strcmp(pathImageScene, "..") == 0)
 						continue;
 
-					Image *imageScene = new Image(ascii, "image");
+					char *tempPathImageScene = new char[folderImageScene.length() + strlen(pathImageScene)];
+					strcpy(tempPathImageScene, folderImageScene.c_str());
+					strcat(tempPathImageScene, pathImageScene);
 
-					IMatcher *matcher = new SURFMatcher(*imagePattern->GetMat(), *imageScene->GetMat());
-					matcher->Match();
+					Image *imageScene = new Image(tempPathImageScene, "image");
+
+					matcher = new SURFMatcher(*imagePattern->GetMat(), *imageScene->GetMat());
+					imageScene->DrawROI(matcher->Match().front());
+					matcher = new SIFTMatcher(*imagePattern->GetMat(), *imageScene->GetMat());
+					imageScene->DrawROI(matcher->Match().front());
+					imageScene->SaveImage("result\\");
 					delete matcher;
 
 				} while (NULL != FindNextFileW(findImageScene, &findDataImageScene));
@@ -61,20 +72,9 @@ int main()
 		FindClose(findImagePattern);
 		FindClose(findImageScene);
 	}
-*/
-
-	///*
-	Image *image = new Image("DataSet_pic\\1305023417875.jpg", "testing2");
-	//Image *image = new Image("E:\\JOB\\DataSet_pic\\MiniChupaChups-1-Sindy.jpg", "testing2");
-	image->ShowImage();	
-
-	IMatcher *matcher = new SIFTMatcher(*template_image->GetMat(), *image->GetMat());
-	matcher->Match();
-	
-	//*/
 
 	// ждём нажатия клавиши
-	cvWaitKey(0);
+	//cvWaitKey(0);
 
 	cvDestroyAllWindows();
 	return 0;
