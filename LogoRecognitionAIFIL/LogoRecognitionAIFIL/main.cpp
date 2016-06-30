@@ -28,22 +28,22 @@ char* ConcatenationPathAndFileName(std::string path_, char *fileName_)
 
 int main()
 {	
+	IMatcher *matcher;
+
 	WIN32_FIND_DATAW findDataImageScene;
 	WIN32_FIND_DATAW findDataImagePatern;
 	
 	std::string folderImagePattern = "DataSet_pic\\reference\\";	
 	std::string folderImageScene   = "DataSet_pic\\";	
 	
-	HANDLE const findImagePattern = FindFirstFileW(L".\\DataSet_pic\\reference\\*.jpg", &findDataImagePatern);
-	HANDLE const findImageScene   = FindFirstFileW(L".\\DataSet_pic\\*.jpg",   &findDataImageScene);
+	HANDLE findImagePattern = FindFirstFileW(L".\\DataSet_pic\\reference\\*.jpg", &findDataImagePatern);	
+	HANDLE findImageScene   = FindFirstFileW(L".\\DataSet_pic\\*.jpg", &findDataImageScene);;
 
-	setlocale(LC_ALL, "");
-
-	IMatcher *matcher;
+	setlocale(LC_ALL, "");	
 	
 	if (INVALID_HANDLE_VALUE != findImagePattern)
 	{
-		// Перебираем образцы, сравнвая каждый образец с картинкой в куче.
+		// Перебираем образцы.
 		do
 		{	
 			char *pathImagePattern = Wchar_tToChar(&findDataImagePatern.cFileName[0]);						
@@ -51,28 +51,43 @@ int main()
 				continue;			
 
 			char *tempPathImagePattern = ConcatenationPathAndFileName(folderImagePattern, pathImagePattern);
+			std::cout << "     TEMPLATE: " << pathImagePattern << std::endl;
 			Image *imagePattern = new Image(tempPathImagePattern, "image");
 
-			WIN32_FIND_DATAW tempFindDataImageScene = findDataImageScene;
-
+			WIN32_FIND_DATAW tempFindDataImageScene = findDataImageScene;			
+			findImageScene = FindFirstFileW(L".\\DataSet_pic\\*.jpg", &findDataImageScene);
 			if (INVALID_HANDLE_VALUE != findImageScene)
 			{
+				// Перебираем картинки, сравнивая их с образцом.
 				do
-				{
+				{										
 					char *pathImageScene = Wchar_tToChar(&tempFindDataImageScene.cFileName[0]);
 					if (strcmp(pathImageScene, ".") == 0 || strcmp(pathImageScene, "..") == 0)
 						continue;
 
 					char *tempPathImageScene = ConcatenationPathAndFileName(folderImageScene, pathImageScene);
-
+					std::cout << "SCENE: " << pathImageScene << std::endl;
 					Image *imageScene = new Image(tempPathImageScene, "image");
 
 					matcher = new SURFMatcher(*imagePattern->GetMat(), *imageScene->GetMat());
-					imageScene->DrawROI(matcher->Match().front());
-					matcher = new SIFTMatcher(*imagePattern->GetMat(), *imageScene->GetMat());
-					imageScene->DrawROI(matcher->Match().front());
-					imageScene->SaveImage("result\\");					
+					std::vector<ROI> *roiSURFMethod = nullptr;					
+					roiSURFMethod = matcher->Match();
 
+					matcher = new SIFTMatcher(*imagePattern->GetMat(), *imageScene->GetMat());
+					std::vector<ROI> *roiSIFTMethod = matcher->Match();
+					if (roiSURFMethod->size() == 0 && roiSIFTMethod->size() == 0)
+					{						
+						continue;
+					}
+					else
+					{
+						if (roiSURFMethod->size() != 0)
+							imageScene->DrawROI(roiSURFMethod->front());
+						if (roiSIFTMethod->size() != 0)
+							imageScene->DrawROI(roiSIFTMethod->front());
+					}
+					
+					imageScene->SaveImage("result\\");					
 				} while (NULL != FindNextFileW(findImageScene, &tempFindDataImageScene));
 			}			
 		} while (NULL != FindNextFileW(findImagePattern, &findDataImagePatern));
