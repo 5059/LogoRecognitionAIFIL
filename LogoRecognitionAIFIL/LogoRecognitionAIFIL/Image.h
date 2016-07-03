@@ -3,25 +3,49 @@
 
 #include "IMatcher.h"
 
+
+//! \brief                   Выделяет имя файла с расширением из полного пути к файлу.
+//! \param [in] str          Строка из которого выделяется имя файла с расширением.
+//! \return                  Возвращает имя файла с рассширением.
+//! \note                    Функция не относится к классу, так как может применяться 
+//!                          к любой строке-пути и выделить из неё имя файла с расширением.
 static std::string SplitFilename(const std::string& str)
 {
 	std::size_t found = str.find_last_of("/\\");
 	return str.substr(found + 1);
 }
 
+
+//! \brief Класс-обёртка над изображением.
+//!
+//! Загружает изображение и хранит его в нескольких форматах.
 class Image {
 public:
+	//! \brief                    Конструктор.
+	//! \param [in] path_         Путь к загружаемому изображению.
 	Image(char *path_);
+
 	~Image();	
-	void      SaveImage(char *path_);
-	void      DrawROI(ROI roi_);
-	Mat*      GetMat();
-	IplImage* GetIplImage();
+
+	//! \brief                    Сохраняет изображение.
+	//! \param [in] path_         Путь к сохраняемому изображению.
+	//! \note                     Путь указывается без имени изображения - только путь к каталогу.
+	void                          SaveImage(char *path_);
+
+	//! \brief                    Рисует область-четырёхугольник (является ограничением детектируемой области).
+	//! \param [in] roi_          Описывает четырёхугольник.
+	void                          DrawROI(ROI roi_);
+
+	// ------------------------------------------------------------------------------------------------------
+	//                  getters
+	// ------------------------------------------------------------------------------------------------------
+	Mat*                          GetMat();
+	IplImage*                     GetIplImage();
+
 private:
-	IplImage *m_iplImage;
-	Mat      *m_mat;
-	char     *m_nameWindowForShow;
-	char     *m_nameImage;
+	IplImage                     *m_iplImage;                   //!< Хранит изображение в формате IplImage.
+	Mat                          *m_mat;	                    //!< Хранит изображение в формате Mat.
+	char                         *m_nameImage;                  //!< Название изображения.
 };
 
 #endif

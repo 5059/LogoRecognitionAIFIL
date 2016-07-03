@@ -17,8 +17,7 @@ Image::Image(char *path_)
 Image::~Image()
 {	
 	cvReleaseImage(&m_iplImage);	
-	delete m_mat;
-	delete m_nameWindowForShow;
+	delete m_mat;	
 	delete m_nameImage;
 }
 
